@@ -7,8 +7,8 @@ Classes are defined to load and save particle data.
 
 Dependencies: 
 -------------
-SDF module
-openPMD-api module
+SDF module;
+openPMD-api module;
 SimEx package
 
 *****************
