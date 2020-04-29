@@ -99,9 +99,6 @@ class TNSAIonMatterInteractor(AbstractIonInteractor):
         del series
 
     def backengine(self):
-        pass
-
-    def run(self):
         [mom, weight]= self.readSDF()
         energy = np.square(mom)/(2*mp*e)
         de=self.parameters.energy_bin
@@ -130,7 +127,7 @@ class TNSAIonMatterInteractor(AbstractIonInteractor):
         self.data = np.zeros(shape=(self.__dims, self.Nn))
         vn = math.sqrt(2 * 2.45e6 * e / mp)
         self.data[0] = 1.e6 * self.parameters.target_length * random(self.Nn)
-        r = 1.e6 * self.parameters.ibeam_radius * random(self.Nn)  # positions will be saved in units of micron
+        r = 1.e6 * self.parameters.ibeam_radius * np.sqrt(random(self.Nn))  # positions will be saved in units of micron
         a = 2 * math.pi * random(self.Nn)
 
         self.data[1] = np.multiply(r, np.cos(a))
