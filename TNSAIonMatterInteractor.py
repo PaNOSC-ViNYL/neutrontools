@@ -15,6 +15,8 @@ class TNSAIonMatterInteractor(AbstractIonInteractor):
 
     def __init__(self,  parameters=None, input_path=None, output_path=None):
         super(TNSAIonMatterInteractor, self).__init__(parameters, input_path, output_path)
+        self.counts = []
+        self.binedges = []
 
     def read_xsec(self):
         """Read in cross section from filename """
@@ -99,23 +101,26 @@ class TNSAIonMatterInteractor(AbstractIonInteractor):
         del series
 
     def backengine(self):
-        [mom, weight]= self.readSDF()
-        energy = np.square(mom)/(2*mp*e)
-        de=self.parameters.energy_bin
-        nb=math.floor(np.max(energy)/de)
-        counts = [0 for i in range(nb+1)]
-        binedges = [(i+1)*de for i in range(nb+1)]
-        print("Number of energy bins: %s" % len(binedges))
-        for en in energy:
-            index=math.floor(en/de)
-            counts[index] += weight[index]
+        if not self.counts:
+            [mom, weight]= self.readSDF()
+            energy = np.square(mom)/(2*mp*e)
+            de=self.parameters.energy_bin
+            nb=math.floor(np.max(energy)/de)
+            self.counts = [0 for i in range(nb+1)]
+            self.binedges = [(i+1)*de for i in range(nb+1)]
+            print("Number of energy bins: %s" % len(self.binedges))
+            for en in energy:
+                index=math.floor(en/de)
+                self.counts[index] += weight[index]
+
         [E, xs] = self.read_xsec()
-        xs = np.interp(binedges, E * 1.e6, xs * 1.e-28)
+        xs = np.interp(self.binedges, E * 1.e6, xs * 1.e-28)
 
         vx=[0]
-        for i in range(len(binedges)):
-            px = np.sqrt(2 * mp * binedges[i] * e)
-            Nd = counts[i]* self.parameters.ibeam_radius**2 / self.parameters.neutron_weight
+        self.Nn=0
+        for i in range(len(self.binedges)):
+            px = np.sqrt(2 * mp * self.binedges[i] * e)
+            Nd = self.counts[i]* self.parameters.ibeam_radius**2 / self.parameters.neutron_weight
             inc = int(round(Nd * self.parameters.target_density * self.parameters.target_length * xs[i]))
             if inc>0:
                 vx=np.append(vx, np.ones(inc)*px/mp)

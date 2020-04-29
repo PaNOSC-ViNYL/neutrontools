@@ -60,6 +60,12 @@ class AbstractIonInteractor(AbstractBaseCalculator, metaclass=ABCMeta):
 
         super(AbstractIonInteractor, self).__init__(parameters, input_path, output_path)
 
+        if isinstance(parameters, dict):
+            self.parameters = IonMatterInteractorParameters()
+            for k in parameters.keys():
+                self.parameters.__setattr__(k,parameters[k])
+
+
     @property
     def expectedData(self):
         if self.parameters is not None:
